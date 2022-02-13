@@ -1,3 +1,4 @@
 # GaminJam
 
-Developed with Unreal Engine 4
+Для джема Гаминатор - https://gamin.me/compos/gaminator/23
+
