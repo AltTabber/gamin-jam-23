@@ -22,13 +22,25 @@ protected:
 	virtual void BeginPlay() override;
 	FVector AbsoluteLocation;
 	FVector TickMove;
-	float Speed = 0.f;
+
+	UPROPERTY(BlueprintReadOnly) float CurrentSpeed = 0.f;
+	
+	float CurrentYawSpeed = 0.f;
+	float CurrentPitchSpeed = 0.f;
+	float CurrentRollSpeed = 0.f;
+	
 	float SpeedAxis = 0.f;
 	FVector SceneLocation;
 	FVector SceneLocationDelta;
 	FRotator SceneRotator;
 
-	UPROPERTY(EditAnywhere) float AccelerationEngine1 = 100.f;
+	UPROPERTY(EditAnywhere) float AccelerationEngine1 = 200.f;
+	UPROPERTY(EditAnywhere) float TurnSpeed = 50.f;
+	UPROPERTY(EditAnywhere) float RollSpeed = 50.f;
+	UPROPERTY(EditAnywhere) float RotateSpeed = 50.f;
+	UPROPERTY(EditAnywhere) bool YawInvert = false;
+
+	int32 invertMultiplier = 1.0f;
 	
 	UInputComponent* InputComponent;
 	UArrowComponent* Arrow;
@@ -40,8 +52,10 @@ public:
 	void InitPlayerInput();
 	
 	void MovePlayer(float DeltaTime);
-	void SetSpeed(float DeltaTime);
 	
 	void SpeedChange(float Axis);
+	void YawChange(float Axis);
+	void RotateChange(float Axis);
+	void TurnChange(float Axis);
 	
 };
