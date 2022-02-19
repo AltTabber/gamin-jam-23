@@ -42,8 +42,8 @@ void UPlayerPawnController::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 	MovePlayer(DeltaTime);
 	
-	UE_LOG(LogTemp, Warning, TEXT("CurrentSpeed: %f, CurrentLocation: %s, CurrentRotation: %s"),
-		CurrentSpeed, *SceneLocation.ToString(), *SceneRotator.ToString());
+	// UE_LOG(LogTemp, Warning, TEXT("CurrentSpeed: %f, CurrentLocation: %s, CurrentRotation: %s"),
+	// 	CurrentSpeed, *SceneLocation.ToString(), *SceneRotator.ToString());
 }
 
 void UPlayerPawnController::InitPlayerInput()
@@ -73,7 +73,7 @@ void UPlayerPawnController::YawChange(float Axis)
 	Axis = invertMultiplier * Axis;
 	
 	// Target pitch speed is based in input
-	float TargetPitchSpeed = (Axis * TurnSpeed * -1.f);
+	float TargetPitchSpeed = (Axis * YawSpeed * -1.f);
 
 	// When steering, we decrease pitch slightly
 	TargetPitchSpeed += (FMath::Abs(CurrentYawSpeed) * -0.2f);
@@ -100,11 +100,7 @@ void UPlayerPawnController::TurnChange(float Axis)
 	// Smoothly interpolate to target yaw speed
 	CurrentYawSpeed = FMath::FInterpTo(CurrentYawSpeed, TargetYawSpeed, GetWorld()->GetDeltaSeconds(), 2.f);
 
-	
-	
-	// Is there any left/right input?
-	const bool bIsTurning = FMath::Abs(Axis) > 0.2f;
-
+	// const bool bIsTurning = FMath::Abs(Axis) > 0.2f;
 	// // If turning, yaw value is used to influence roll
 	// // If not turning, roll to reverse current roll value.
 	// float TargetRollSpeed = bIsTurning ?

@@ -35,9 +35,10 @@ protected:
 	FRotator SceneRotator;
 
 	UPROPERTY(EditAnywhere) float AccelerationEngine1 = 200.f;
+	UPROPERTY(EditAnywhere) float YawSpeed = 70.f;
 	UPROPERTY(EditAnywhere) float TurnSpeed = 50.f;
-	UPROPERTY(EditAnywhere) float RollSpeed = 50.f;
-	UPROPERTY(EditAnywhere) float RotateSpeed = 50.f;
+	UPROPERTY(EditAnywhere) float RollSpeed = 70.f;
+	UPROPERTY(EditAnywhere) float RotateSpeed = 70.f;
 	UPROPERTY(EditAnywhere) bool YawInvert = false;
 
 	int32 invertMultiplier = 1.0f;
