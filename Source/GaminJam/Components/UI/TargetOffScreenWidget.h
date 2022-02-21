@@ -17,4 +17,5 @@ class GAMINJAM_API UTargetOffScreenWidget : public UUserWidget
 protected:
 	UFUNCTION(BlueprintCallable) FString AddGoalPointer();
 	
+	
 };

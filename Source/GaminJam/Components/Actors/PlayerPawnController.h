@@ -34,7 +34,9 @@ protected:
 	FVector SceneLocationDelta;
 	FRotator SceneRotator;
 
-	UPROPERTY(EditAnywhere) float AccelerationEngine1 = 200.f;
+	UPROPERTY(EditAnywhere) float AccelerationEngine1 = 400.f;
+	UPROPERTY(EditAnywhere) float SpeedMaxEngine1 = 1000.f;
+	UPROPERTY(EditAnywhere) float SpeedMinEngine1 = 0.f;
 	UPROPERTY(EditAnywhere) float YawSpeed = 70.f;
 	UPROPERTY(EditAnywhere) float TurnSpeed = 50.f;
 	UPROPERTY(EditAnywhere) float RollSpeed = 70.f;

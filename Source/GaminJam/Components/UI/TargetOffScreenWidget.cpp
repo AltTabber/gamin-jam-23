@@ -3,3 +3,8 @@
 
 #include "TargetOffScreenWidget.h"
 
+
+FString UTargetOffScreenWidget::AddGoalPointer()
+{
+	return "123";
+}
