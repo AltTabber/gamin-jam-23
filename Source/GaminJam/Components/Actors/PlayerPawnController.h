@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Components/ArrowComponent.h"
+#include "GaminJam/Actors/SpaceMap.h"
 #include "PlayerPawnController.generated.h"
 
 
@@ -28,7 +29,6 @@ protected:
 	float CurrentYawSpeed = 0.f;
 	float CurrentPitchSpeed = 0.f;
 	float CurrentRollSpeed = 0.f;
-	
 	float SpeedAxis = 0.f;
 	FVector SceneLocation;
 	FVector SceneLocationDelta;
@@ -43,10 +43,16 @@ protected:
 	UPROPERTY(EditAnywhere) float RotateSpeed = 70.f;
 	UPROPERTY(EditAnywhere) bool YawInvert = false;
 
+	UPROPERTY(EditAnywhere) ASpaceMap* SpaceMap;
+	
+	bool IsMapOpened = false;
+
 	int32 invertMultiplier = 1.0f;
 	
 	UInputComponent* InputComponent;
 	UArrowComponent* Arrow;
+	UCameraComponent* CameraComponent;
+
 
 public:	
 	// Called every frame
@@ -60,5 +66,7 @@ public:
 	void YawChange(float Axis);
 	void RotateChange(float Axis);
 	void TurnChange(float Axis);
+
+	void MapAction();
 	
 };

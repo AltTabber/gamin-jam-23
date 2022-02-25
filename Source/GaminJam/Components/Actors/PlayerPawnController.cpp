@@ -3,7 +3,9 @@
 
 #include "PlayerPawnController.h"
 
+#include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values for this component's properties
 UPlayerPawnController::UPlayerPawnController()
@@ -28,7 +30,15 @@ void UPlayerPawnController::BeginPlay()
 	{
 		invertMultiplier = -1.0;
 	}
-	
+
+	TArray<AActor*> SpaceMapArr;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpaceMap::StaticClass(), SpaceMapArr);
+	for(AActor* MapElem: SpaceMapArr)
+	{
+		SpaceMap = Cast<ASpaceMap>(MapElem);
+	}
+
+	CameraComponent = GetOwner()->FindComponentByClass<UCameraComponent>();
 }
 
 
@@ -42,8 +52,6 @@ void UPlayerPawnController::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 	MovePlayer(DeltaTime);
 	
-	// UE_LOG(LogTemp, Warning, TEXT("CurrentSpeed: %f, CurrentLocation: %s, CurrentRotation: %s"),
-	// 	CurrentSpeed, *SceneLocation.ToString(), *SceneRotator.ToString());
 }
 
 void UPlayerPawnController::InitPlayerInput()
@@ -55,6 +63,7 @@ void UPlayerPawnController::InitPlayerInput()
 		InputComponent->BindAxis("Turn", this, &UPlayerPawnController::TurnChange);
 		InputComponent->BindAxis("Rotate", this, &UPlayerPawnController::RotateChange);
 		InputComponent->BindAxis("MoveUp", this, &UPlayerPawnController::YawChange);
+		InputComponent->BindAction("MapAction", IE_Pressed, this, &UPlayerPawnController::MapAction);
 	}else{
 		UE_LOG(LogTemp, Error, TEXT("Found component UInputComponent in Actor %s"), *GetOwner()->GetName());
 	}
@@ -77,7 +86,6 @@ void UPlayerPawnController::YawChange(float Axis)
 
 	// When steering, we decrease pitch slightly
 	TargetPitchSpeed += (FMath::Abs(CurrentYawSpeed) * -0.2f);
-
 	// Smoothly interpolate to target pitch speed
 	CurrentPitchSpeed = FMath::FInterpTo(CurrentPitchSpeed, TargetPitchSpeed, GetWorld()->GetDeltaSeconds(), 2.f);
 }
@@ -125,3 +133,18 @@ void UPlayerPawnController::MovePlayer(float DeltaTime)
 
 	GetOwner()->AddActorLocalRotation(DeltaRotation);
 }
+
+void UPlayerPawnController::MapAction()
+{
+	if(!IsMapOpened)
+	{
+		IsMapOpened = true;
+		GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(SpaceMap);
+	}
+	else
+	{
+		IsMapOpened = false;
+		GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(this->GetOwner());
+	}
+}
+
