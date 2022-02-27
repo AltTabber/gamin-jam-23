@@ -6,6 +6,21 @@
 #include "GameFramework/Actor.h"
 #include "MapMovementController.generated.h"
 
+USTRUCT()
+struct FGlobalMapObject
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere) FString Name;
+	UPROPERTY(EditAnywhere) FVector GlobalLocation;
+
+	FGlobalMapObject(const FString& Name, const FVector& GlobalLocation)
+		: Name(Name),
+		  GlobalLocation(GlobalLocation)
+	{
+	}
+};
+
 UCLASS()
 class GAMINJAM_API AMapMovementController : public AActor
 {
@@ -24,8 +39,16 @@ public:
 
 	UPROPERTY(EditAnywhere) APawn* PlayerPawn;
 
-	FVector CurrentLocation;
+	UPROPERTY(EditAnywhere) FVector PlayerGlobalLocation;
+	UPROPERTY(EditAnywhere) FVector SunGlobalLocation;
+	UPROPERTY(EditAnywhere) FVector MercuryGlobalLocation;
+	UPROPERTY(EditAnywhere) FVector VenusGlobalLocation;
+	UPROPERTY(EditAnywhere) FVector EarthGlobalLocation;
+	UPROPERTY(EditAnywhere) FVector MarsGlobalLocation = FVector(30, 20, 1);
 
+	UPROPERTY(EditAnywhere) TArray<FGlobalMapObject> MapObjects =
+		TArray<FGlobalMapObject>();
+ 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -33,11 +56,11 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	void CheckPlayerOutOffBoundX() const;
-	void CheckPlayerOutOffBoundY() const;
-	void CheckPlayerOutOffBoundZ() const;
-	void SetNewLocation();
-
+	void CheckPlayerOutOffBoundX();
+	void CheckPlayerOutOffBoundY();
+	void CheckPlayerOutOffBoundZ();
+	void AddPlayerGlobalLocationOffset(FVector Delta);
+	void ManageSpawnOfObjects();
 	
 
 };
