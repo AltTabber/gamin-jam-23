@@ -7,4 +7,6 @@ AGaminJamGameMode::AGaminJamGameMode()
 {
 	// set default pawn class to our flying pawn
 	DefaultPawnClass = AGaminJamPawn::StaticClass();
+
+	
 }
