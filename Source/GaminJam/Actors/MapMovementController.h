@@ -61,6 +61,7 @@ public:
 	void CheckPlayerOutOffBoundZ();
 	void AddPlayerGlobalLocationOffset(FVector Delta);
 	void ManageSpawnOfObjects();
+	void SpawnObjectToScene(FGlobalMapObject MapObject);
 	
 
 };

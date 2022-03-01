@@ -85,16 +85,18 @@ void AMapMovementController::AddPlayerGlobalLocationOffset(FVector Delta)
 
 void AMapMovementController::ManageSpawnOfObjects()
 {
-	if(PlayerGlobalLocation.Equals(SunGlobalLocation))
+	for(FGlobalMapObject MapObject : MapObjects)
 	{
-		
-	}
-	else if(PlayerGlobalLocation.Equals(MercuryGlobalLocation))
-	{
-		
-	}
-	else if(PlayerGlobalLocation.Equals(VenusGlobalLocation))
-	{
-		
+		if(MapObject.GlobalLocation.Equals(PlayerGlobalLocation))
+		{
+			SpawnObjectToScene(MapObject);
+		}
 	}
 }
+
+void AMapMovementController::SpawnObjectToScene(FGlobalMapObject MapObject)
+{
+	
+}
+
+
