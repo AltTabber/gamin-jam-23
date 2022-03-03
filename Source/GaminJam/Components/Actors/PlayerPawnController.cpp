@@ -2,7 +2,7 @@
 
 
 #include "PlayerPawnController.h"
-
+#include "Gaminjam/Actors/MeteoreEngine.h"
 #include "Camera/CameraComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -64,6 +64,7 @@ void UPlayerPawnController::InitPlayerInput()
 		InputComponent->BindAxis("Rotate", this, &UPlayerPawnController::RotateChange);
 		InputComponent->BindAxis("MoveUp", this, &UPlayerPawnController::YawChange);
 		InputComponent->BindAction("MapAction", IE_Pressed, this, &UPlayerPawnController::MapAction);
+		InputComponent->BindAction("CreateMeteoreEngine", IE_Pressed, this, &UPlayerPawnController::CreateMeteoreEngine);
 	}else{
 		UE_LOG(LogTemp, Error, TEXT("Found component UInputComponent in Actor %s"), *GetOwner()->GetName());
 	}
@@ -147,4 +148,10 @@ void UPlayerPawnController::MapAction()
 		GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(this->GetOwner());
 	}
 }
+void UPlayerPawnController::CreateMeteoreEngine()
+{
+	FVector SpawnLocation = GetOwner()->GetTransform().GetLocation();
+	FRotator SpawnRotation = GetOwner()->GetActorRotation();
 
+	GetWorld()->SpawnActor<AMeteoreEngine>(SpawnLocation,SpawnRotation);
+}
