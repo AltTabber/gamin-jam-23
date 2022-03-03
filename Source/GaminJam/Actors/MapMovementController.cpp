@@ -3,6 +3,8 @@
 
 #include "MapMovementController.h"
 
+#include "Kismet/GameplayStatics.h"
+
 // Sets default values
 AMapMovementController::AMapMovementController()
 {
@@ -85,6 +87,8 @@ void AMapMovementController::AddPlayerGlobalLocationOffset(FVector Delta)
 
 void AMapMovementController::ManageSpawnOfObjects()
 {
+	UE_LOG(LogTemp, Display, TEXT("Change Global Location %s"), *PlayerGlobalLocation.ToString());
+	RemoveSpawnableObjectsFromScene();
 	for(FGlobalMapObject MapObject : MapObjects)
 	{
 		if(MapObject.GlobalLocation.Equals(PlayerGlobalLocation))
@@ -99,4 +103,13 @@ void AMapMovementController::SpawnObjectToScene(FGlobalMapObject MapObject)
 	GetWorld()->SpawnActor<ASpawnableObject>(MapObject.SpawnableObjectClass);
 }
 
+void AMapMovementController::RemoveSpawnableObjectsFromScene()
+{
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnableObject::StaticClass(), FoundActors);
+	for(AActor* Actor : FoundActors)
+	{
+		Actor->Destroy();
+	}
+}
 

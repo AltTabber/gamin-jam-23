@@ -14,7 +14,6 @@ struct FGlobalMapObject
 
 	UPROPERTY(EditAnywhere) FString Name;
 	UPROPERTY(EditAnywhere) FVector GlobalLocation;
-	UPROPERTY(EditAnywhere) ASpawnableObject* SpawnableObject;
 	UPROPERTY(EditAnywhere) TSubclassOf<ASpawnableObject> SpawnableObjectClass;
 };
 
@@ -54,6 +53,7 @@ public:
 	void AddPlayerGlobalLocationOffset(FVector Delta);
 	void ManageSpawnOfObjects();
 	void SpawnObjectToScene(FGlobalMapObject MapObject);
+	void RemoveSpawnableObjectsFromScene();
 	
 
 };
