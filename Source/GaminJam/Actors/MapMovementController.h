@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SpawnableObject.h"
 #include "GameFramework/Actor.h"
 #include "MapMovementController.generated.h"
 
@@ -13,12 +14,8 @@ struct FGlobalMapObject
 
 	UPROPERTY(EditAnywhere) FString Name;
 	UPROPERTY(EditAnywhere) FVector GlobalLocation;
-
-	FGlobalMapObject(const FString& Name, const FVector& GlobalLocation)
-		: Name(Name),
-		  GlobalLocation(GlobalLocation)
-	{
-	}
+	UPROPERTY(EditAnywhere) ASpawnableObject* SpawnableObject;
+	UPROPERTY(EditAnywhere) TSubclassOf<ASpawnableObject> SpawnableObjectClass;
 };
 
 UCLASS()
@@ -40,11 +37,6 @@ public:
 	UPROPERTY(EditAnywhere) APawn* PlayerPawn;
 
 	UPROPERTY(EditAnywhere) FVector PlayerGlobalLocation;
-	UPROPERTY(EditAnywhere) FVector SunGlobalLocation;
-	UPROPERTY(EditAnywhere) FVector MercuryGlobalLocation;
-	UPROPERTY(EditAnywhere) FVector VenusGlobalLocation;
-	UPROPERTY(EditAnywhere) FVector EarthGlobalLocation;
-	UPROPERTY(EditAnywhere) FVector MarsGlobalLocation = FVector(30, 20, 1);
 
 	UPROPERTY(EditAnywhere) TArray<FGlobalMapObject> MapObjects =
 		TArray<FGlobalMapObject>();

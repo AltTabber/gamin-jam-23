@@ -27,7 +27,7 @@ void AMapMovementController::Tick(float DeltaTime)
 	CheckPlayerOutOffBoundY();
 	CheckPlayerOutOffBoundZ();
 
-	UE_LOG(LogTemp, Warning, TEXT("PlayerPosition - %s"), *PlayerPawn->GetTransform().GetLocation().ToString());
+	// UE_LOG(LogTemp, Warning, TEXT("PlayerPosition - %s"), *PlayerPawn->GetTransform().GetLocation().ToString());
 }
 
 void AMapMovementController::CheckPlayerOutOffBoundX()
@@ -96,7 +96,7 @@ void AMapMovementController::ManageSpawnOfObjects()
 
 void AMapMovementController::SpawnObjectToScene(FGlobalMapObject MapObject)
 {
-	
+	GetWorld()->SpawnActor<ASpawnableObject>(MapObject.SpawnableObjectClass);
 }
 
 
