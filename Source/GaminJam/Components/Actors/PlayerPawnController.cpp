@@ -39,6 +39,8 @@ void UPlayerPawnController::BeginPlay()
 	}
 
 	CameraComponent = GetOwner()->FindComponentByClass<UCameraComponent>();
+
+	PlayerController = GetWorld()->GetFirstPlayerController();
 }
 
 
@@ -51,6 +53,20 @@ void UPlayerPawnController::TickComponent(float DeltaTime, ELevelTick TickType, 
 	SceneRotator = GetOwner()->GetActorRotation();
 
 	MovePlayer(DeltaTime);
+
+	if(IsMapOpened)
+	{
+		isMapMouseHover = false;
+		MapHover();
+		if(!isMapMouseHover)
+		{
+			SpaceMap->MouseUnhover();
+		}
+	}
+	else
+	{
+		isMapMouseHover = false;
+	}
 	
 }
 
@@ -65,6 +81,7 @@ void UPlayerPawnController::InitPlayerInput()
 		InputComponent->BindAxis("MoveUp", this, &UPlayerPawnController::YawChange);
 		InputComponent->BindAction("MapAction", IE_Pressed, this, &UPlayerPawnController::MapAction);
 		InputComponent->BindAction("CreateMeteoreEngine", IE_Pressed, this, &UPlayerPawnController::CreateMeteoreEngine);
+		InputComponent->BindAction("MouseLeftClick", IE_Pressed, this, &UPlayerPawnController::MapLeftClick);
 	}else{
 		UE_LOG(LogTemp, Error, TEXT("Found component UInputComponent in Actor %s"), *GetOwner()->GetName());
 	}
@@ -140,18 +157,55 @@ void UPlayerPawnController::MapAction()
 	if(!IsMapOpened)
 	{
 		IsMapOpened = true;
-		GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(SpaceMap);
+		PlayerController->SetViewTargetWithBlend(SpaceMap);
+		PlayerController->bShowMouseCursor = true;
+		PlayerController->bEnableClickEvents = true; 
+		PlayerController->bEnableMouseOverEvents = true;
 	}
 	else
 	{
 		IsMapOpened = false;
-		GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(this->GetOwner());
+		PlayerController->SetViewTargetWithBlend(this->GetOwner());
+		PlayerController->bShowMouseCursor = false;
+		PlayerController->bEnableClickEvents = false;
+		PlayerController->bEnableMouseOverEvents = false;
 	}
 }
+
 void UPlayerPawnController::CreateMeteoreEngine()
 {
 	FVector SpawnLocation = GetOwner()->GetTransform().GetLocation();
 	FRotator SpawnRotation = GetOwner()->GetActorRotation();
 
 	GetWorld()->SpawnActor<AMeteoreEngine>(SpawnLocation,SpawnRotation);
+}
+
+void UPlayerPawnController::MapLeftClick()
+{
+	if(IsMapOpened)
+	{
+		FHitResult HitResult;
+		PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, HitResult);
+		if(HitResult.IsValidBlockingHit())
+		{
+			if(HitResult.GetComponent()->ComponentHasTag(FName("MapPointer")))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Overlapped object clicked - %s"), *HitResult.GetComponent()->GetName());
+			}
+		}		
+	}
+}
+
+void UPlayerPawnController::MapHover()
+{
+	FHitResult HitResult;
+	PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, HitResult);
+	if(HitResult.IsValidBlockingHit())
+	{
+		if(HitResult.GetComponent()->ComponentHasTag(FName("MapPointer")))
+		{
+			isMapMouseHover = true;
+			SpaceMap->MouseHoverPlanet(HitResult.GetComponent()->GetName());
+		}
+	}
 }

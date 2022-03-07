@@ -4,6 +4,7 @@
 #include "SpaceMap.h"
 
 #include "DrawDebugHelpers.h"
+#include "EngineUtils.h"
 #include "Components/LineBatchComponent.h"
 #include "SceneManagement.h"
 #include "Camera/CameraComponent.h"
@@ -31,6 +32,20 @@ void ASpaceMap::BeginPlay()
 	MercuryComponent = Cast<UStaticMeshComponent>(GetDefaultSubobjectByName(TEXT("Mercury")));
 	Camera = Cast<UCameraComponent>(GetDefaultSubobjectByName(TEXT("Camera")));
 
+	for (TActorIterator<AMapMovementController> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		MapMovementController = *ActorItr;
+	}
+
+	if(!MapMovementController)
+	{
+		UE_LOG(LogTemp, Error, TEXT("MapMovementController is not found"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("MapMovementController installed"));	
+	}
+
 	InitPlanets();
 	
 }
@@ -42,6 +57,7 @@ void ASpaceMap::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	MovePlanets();
+	ControlHover();
 	
 }
 
@@ -78,6 +94,13 @@ void ASpaceMap::InitPlanets()
     	send_data,
     	3
 	);
+	PlanetsMap.Add(MercuryComponent->GetName(), MercuryComponent);
+	PlanetsMap.Add(VenusComponent->GetName(), VenusComponent);
+	PlanetsMap.Add(EarthComponent->GetName(), EarthComponent);
+	PlanetsMap.Add(MarsComponent->GetName(), MarsComponent);
+	PlanetsMap.Add(SunComponent->GetName(), SunComponent);
+	
+	
 }
 
 void ASpaceMap::MovePlanets()
@@ -130,22 +153,22 @@ UCameraComponent* ASpaceMap::GetCamera()
 
 void ASpaceMap::InitMars()
 {
-	ASpaceMap::InitPlanet(MarsRadius, MarsComponent, 0);
+	ASpaceMap::InitPlanet(MarsRadius, MarsComponent, MarsStartAngle, "Mars");
 }
 
 void ASpaceMap::InitEarth()
 {
-	ASpaceMap::InitPlanet(EarthRadius, EarthComponent, 45);
+	ASpaceMap::InitPlanet(EarthRadius, EarthComponent, EarthStartAngle, "Earth");
 }
 
 void ASpaceMap::InitVenus()
 {
-	ASpaceMap::InitPlanet(VenusRadius, VenusComponent, 90);
+	ASpaceMap::InitPlanet(VenusRadius, VenusComponent, VenusStartAngle, "Venus");
 }
 
 void ASpaceMap::InitMercury()
 {
-	ASpaceMap::InitPlanet(MercuryRadius, MercuryComponent, 180);
+	ASpaceMap::InitPlanet(MercuryRadius, MercuryComponent, MercuryStartAngle, "Mercury");
 }
 
 void ASpaceMap::InitMeteorite()
@@ -197,7 +220,7 @@ void ASpaceMap::DrawRootCurve(const UWorld* InWorld, const FVector& Base, const 
 	LineBatchComponent->DrawLines(Lines);
 }
 
-void ASpaceMap::InitPlanet(int32 Radius, UStaticMeshComponent* Planet, float angle)
+void ASpaceMap::InitPlanet(int32 Radius, UStaticMeshComponent* Planet, float angle, FString Name)
 {
 	FVector planetLocation = FVector(SunComponent->GetComponentLocation());
 	
@@ -214,36 +237,76 @@ void ASpaceMap::InitPlanet(int32 Radius, UStaticMeshComponent* Planet, float ang
 		send_data,
 		3
 		);
-	RotatePlanet(Radius, Planet, angle);
+	RotatePlanet(Radius, Planet, angle, Name);
 }
 
-void ASpaceMap::RotatePlanet(int32 Radius, UStaticMeshComponent* Planet, float Angle)
+void ASpaceMap::RotatePlanet(int32 Radius, UStaticMeshComponent* Planet, float Angle, FString Name)
 {
 	FVector PlanetLocation = FVector(SunComponent->GetComponentLocation());
 	
 	FRotator Rotator = FRotator(0, Angle, 0);
 	FVector RotationVector = Rotator.RotateVector(FVector(1, 0, 0));
-	PlanetLocation.X = PlanetLocation.X + Radius*RotationVector.X;
-	PlanetLocation.Y = PlanetLocation.Y + Radius*RotationVector.Y;
+	FVector PlusVector = FVector(Radius*RotationVector.X, Radius*RotationVector.Y, 0);
+	PlanetLocation = PlanetLocation + PlusVector;
 	Planet->SetWorldLocation(PlanetLocation);
+
+	MapMovementController->SetGlobalLocation(Name, PlusVector/10);
 }
 
 void ASpaceMap::RotateMars()
 {
-	RotatePlanet(MarsRadius, MarsComponent, MarsAngleSpeed * GetWorld()->GetRealTimeSeconds());
+	RotatePlanet(MarsRadius, MarsComponent, MarsStartAngle + MarsAngleSpeed * GetWorld()->GetRealTimeSeconds(), "Mars");
 }
 
 void ASpaceMap::RotateEarth()
 {
-	RotatePlanet(EarthRadius, EarthComponent, EarthAngleSpeed * GetWorld()->GetRealTimeSeconds());
+	RotatePlanet(EarthRadius, EarthComponent, EarthStartAngle + EarthAngleSpeed * GetWorld()->GetRealTimeSeconds(), "Earth");
 }
 
 void ASpaceMap::RotateVenus()
 {
-	RotatePlanet(VenusRadius, VenusComponent, VenusAngleSpeed * GetWorld()->GetRealTimeSeconds());
+	RotatePlanet(VenusRadius, VenusComponent, VenusStartAngle + VenusAngleSpeed * GetWorld()->GetRealTimeSeconds(), "Venus");
 }
 
 void ASpaceMap::RotateMercury()
 {
-	RotatePlanet(MercuryRadius, MercuryComponent, MercuryAngleSpeed * GetWorld()->GetRealTimeSeconds());
+	RotatePlanet(MercuryRadius, MercuryComponent, MercuryStartAngle + MercuryAngleSpeed * GetWorld()->GetRealTimeSeconds(), "Mercury");
+}
+
+void ASpaceMap::MouseHoverPlanet(FString Name)
+{
+	HoveredPlanetName = Name;
+	IsPlanetHovered = true;
+}
+
+void ASpaceMap::MouseUnhover()
+{
+	IsPlanetHovered = false;
+}
+
+void ASpaceMap::ControlHover()
+{
+	if(IsPlanetHovered)
+	{
+		if(!IsPlanetHoverSet)
+		{
+			UStaticMeshComponent* MeshComponent = *PlanetsMap.Find(HoveredPlanetName);
+			MeshComponent->SetRelativeScale3D(FVector(1.2 , 1.2, 1.2));
+			IsPlanetHoverSet = true;
+			IsPlanetUnhoverSet = false;
+		}
+	}
+	else
+	{
+		if(!IsPlanetUnhoverSet)
+		{
+			for(auto& Planet: PlanetsMap)
+			{
+				Planet.Value->SetRelativeScale3D(FVector(0.6 , 0.6, 0.6));
+			}
+			IsPlanetUnhoverSet = true;
+			IsPlanetHoverSet = false;
+		}
+		
+	}
 }

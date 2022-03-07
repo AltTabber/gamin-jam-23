@@ -18,6 +18,11 @@ void AMapMovementController::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerPawn = GetWorld()->GetFirstPlayerController()->GetPawnOrSpectator();
+	PlanetCoord = TMap<FString, FVector>();
+	for(FGlobalMapObject GlobalObject : MapObjects)
+	{
+		PlanetCoord.Add(GlobalObject.Name, GlobalObject.GlobalLocation);
+	}
 }
 
 // Called every frame
@@ -87,13 +92,19 @@ void AMapMovementController::AddPlayerGlobalLocationOffset(FVector Delta)
 
 void AMapMovementController::ManageSpawnOfObjects()
 {
-	UE_LOG(LogTemp, Display, TEXT("Change Global Location %s"), *PlayerGlobalLocation.ToString());
+	PrintDebugInfo();
 	RemoveSpawnableObjectsFromScene();
-	for(FGlobalMapObject MapObject : MapObjects)
+	for(auto& Planet : PlanetCoord)
 	{
-		if(MapObject.GlobalLocation.Equals(PlayerGlobalLocation))
+		if(Planet.Value.Equals(PlayerGlobalLocation))
 		{
-			SpawnObjectToScene(MapObject);
+			for(FGlobalMapObject MapObject : MapObjects)
+			{
+				if(MapObject.Name == Planet.Key)
+				{
+					SpawnObjectToScene(MapObject);					
+				}
+			}
 		}
 	}
 }
@@ -110,6 +121,29 @@ void AMapMovementController::RemoveSpawnableObjectsFromScene()
 	for(AActor* Actor : FoundActors)
 	{
 		Actor->Destroy();
+	}
+}
+
+void AMapMovementController::SetGlobalLocation(FString Name, FVector _GlobalLocation)
+{
+	for(auto& MapObject : PlanetCoord)
+	{
+		if(MapObject.Key.Equals(Name))
+		{
+			MapObject.Value.Set(FMath::Floor(_GlobalLocation.X),
+				FMath::Floor(_GlobalLocation.Y),
+				FMath::Floor(_GlobalLocation.Z));
+			// UE_LOG(LogTemp, Display, TEXT("Change Global Location %s - %s "), *MapObject.GlobalLocation.ToString(), *_GlobalLocation.ToString());
+		}
+	}
+}
+
+void AMapMovementController::PrintDebugInfo()
+{
+	UE_LOG(LogTemp, Display, TEXT("Change Global Location %s"), *PlayerGlobalLocation.ToString());
+	for(auto& MapObject : PlanetCoord)
+	{
+		UE_LOG(LogTemp, Display, TEXT("Planet %s location - %s"), *MapObject.Key, *MapObject.Value.ToString());
 	}
 }
 

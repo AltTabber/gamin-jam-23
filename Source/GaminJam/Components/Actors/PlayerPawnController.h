@@ -55,6 +55,9 @@ protected:
 	UInputComponent* InputComponent;
 	UArrowComponent* Arrow;
 	UCameraComponent* CameraComponent;
+	APlayerController* PlayerController;
+
+	bool isMapMouseHover = false;
 
 
 public:	
@@ -71,5 +74,7 @@ public:
 	void TurnChange(float Axis);
 
 	void MapAction();
+	void MapLeftClick();
+	void MapHover();
 	
 };

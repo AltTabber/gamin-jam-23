@@ -39,6 +39,8 @@ public:
 
 	UPROPERTY(EditAnywhere) TArray<FGlobalMapObject> MapObjects =
 		TArray<FGlobalMapObject>();
+
+	TMap<FString, FVector> PlanetCoord;
  
 protected:
 	// Called when the game starts or when spawned
@@ -54,6 +56,7 @@ public:
 	void ManageSpawnOfObjects();
 	void SpawnObjectToScene(FGlobalMapObject MapObject);
 	void RemoveSpawnableObjectsFromScene();
-	
+	void SetGlobalLocation(FString Name, FVector _GlobalLocation);
+	void PrintDebugInfo();
 
 };
